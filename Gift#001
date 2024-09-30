@@ -53,7 +53,7 @@
 
         // Links de exemplo - aqui você pode adicionar suas imagens e vídeos
         const links = {
-            'imagem1': 'link_para_video1.mp4',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4fjI1V4xtc7lWqDf91InUI_Zz6XTqH9acQw&s': 'https://youtu.be/q3vsAtijvgA?si=mnk9sNmRtWt1Fx3I',
             'imagem2': 'link_para_video2.mp4'
         };
 
