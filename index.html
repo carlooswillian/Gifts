@@ -60,6 +60,7 @@
         };
 
         let model;
+        let isProcessing = false; // Variável de controle para interromper o processamento de imagens durante a reprodução do vídeo
 
         // Acessando a câmera do celular
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((stream) => {
@@ -75,6 +76,8 @@
         });
 
         function processFrame() {
+            if (isProcessing) return; // Se estiver processando um vídeo, interrompe a detecção
+
             // Cria um canvas temporário para capturar frames da câmera
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
@@ -91,6 +94,7 @@
                     
                     // Verifica se a classe identificada corresponde a algum vídeo na lista
                     if (videoLinks[predictedClass]) {
+                        isProcessing = true; // Pausa a detecção de novas imagens
                         playVideo(videoLinks[predictedClass]);
                     }
                 }
@@ -116,6 +120,7 @@
                 videoPlayer.style.display = 'none';
                 videoElement.style.display = 'block';
                 scanMessage.textContent = "Aponte a câmera para uma imagem para começar";
+                isProcessing = false; // Retoma a detecção de imagens após o vídeo
                 videoElement.play();
             };
         }
