@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reconhecimento de Imagem e Vídeo</title>
+    <title>Reconhecimento de Imagem com TensorFlow.js</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,18 +44,22 @@
 
     <p id="scanMessage">Aponte a câmera para uma imagem para começar</p>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <script>
         // Variáveis de controle
         const videoElement = document.getElementById('camera');
         const videoPlayer = document.getElementById('videoPlayer');
         const scanMessage = document.getElementById('scanMessage');
 
-        // Links de exemplo - aqui você pode adicionar suas imagens e vídeos
-        const links = {
+        // Links de exemplo - aqui você pode adicionar suas imagens e vídeos correspondentes
+        const videoLinks = {
             'https://www.urbanparkgru.com.br/dicas-de-viagem/wp-content/uploads/2019/12/medo-de-aviao.jpg': 'https://youtu.be/q3vsAtijvgA?si=mnk9sNmRtWt1Fx3I',
-            'imagem2': 'link_para_video2.mp4'
+            'dog': 'https://youtu.be/dQw4w9WgXcQ', // Link de exemplo para vídeo de um cachorro
+            'cat': 'https://youtu.be/L3wKzyIN1yk'  // Link de exemplo para vídeo de um gato
         };
+
+        let model;
 
         // Acessando a câmera do celular
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((stream) => {
@@ -63,25 +67,38 @@
             videoElement.play();
         });
 
+        // Carrega o modelo MobileNet
+        mobilenet.load().then((loadedModel) => {
+            model = loadedModel;
+            scanMessage.textContent = "Modelo carregado. Aponte a câmera para uma imagem.";
+            processFrame();
+        });
+
         function processFrame() {
+            // Cria um canvas temporário para capturar frames da câmera
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             canvas.width = videoElement.videoWidth;
             canvas.height = videoElement.videoHeight;
             context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-            // Pegando a imagem da câmera e escaneando QR Codes
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, canvas.width, canvas.height);
-
-            if (code) {
-                const link = links[code.data]; // Busca o link correspondente
-                if (link) {
-                    playVideo(link);
-                } else {
-                    scanMessage.textContent = "QR Code não identificado.";
+            // Processa o frame da câmera com o modelo MobileNet
+            const imageTensor = tf.browser.fromPixels(canvas);
+            model.classify(imageTensor).then(predictions => {
+                if (predictions && predictions.length > 0) {
+                    const predictedClass = predictions[0].className.split(',')[0].toLowerCase();
+                    scanMessage.textContent = `Reconhecido: ${predictedClass}`;
+                    
+                    // Verifica se a classe identificada corresponde a algum vídeo na lista
+                    if (videoLinks[predictedClass]) {
+                        playVideo(videoLinks[predictedClass]);
+                    }
                 }
-            }
+                imageTensor.dispose(); // Libera memória do tensor
+            });
+
+            // Executa a cada 500ms para verificar a imagem da câmera
+            setTimeout(processFrame, 500);
         }
 
         function playVideo(link) {
@@ -102,11 +119,7 @@
                 videoElement.play();
             };
         }
-
-        // Executa a cada 500ms para verificar QR codes
-        setInterval(processFrame, 500);
     </script>
 
 </body>
 </html>
-
