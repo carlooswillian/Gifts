@@ -131,6 +131,9 @@
                 scanMessage.textContent = "Aponte a câmera para uma imagem para começar";
                 isProcessing = false; // Retoma a detecção de imagens após o vídeo
                 videoElement.play();
+
+                // Chama o processFrame novamente para reiniciar a detecção
+                processFrame();
             };
         }
     </script>
