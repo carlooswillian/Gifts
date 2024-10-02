@@ -99,7 +99,8 @@
             const imageTensor = tf.browser.fromPixels(canvas);
             model.classify(imageTensor).then(predictions => {
                 if (predictions && predictions.length > 0) {
-                    let predictedClass = predictions[0].className.toLowerCase();
+                    // Pegando apenas a primeira previsão
+                    let predictedClass = predictions[0].className.split(',')[0].toLowerCase();
                     scanMessage.textContent = `Reconhecido: ${predictedClass}`;
                     
                     // Substitui espaços por sublinhados para corresponder ao formato das chaves no videoLinks
