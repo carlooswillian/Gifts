@@ -25,12 +25,12 @@
             object-fit: cover;
         }
 
-        #camera, #videoPlayer {
-            display: none;
+        #camera {
+            display: block;
         }
 
         #videoPlayer {
-            display: block;
+            display: none;
         }
     </style>
 </head>
@@ -85,7 +85,7 @@
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((stream) => {
             videoElement.srcObject = stream;
             videoElement.play();
-            videoElement.style.display = 'block'; // Exibe a câmera ao iniciar
+            videoElement.style.display = 'block'; // Garante que a câmera apareça ao iniciar
         });
 
         // Carrega o modelo MobileNet
