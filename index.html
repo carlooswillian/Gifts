@@ -5,45 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reconhecimento de Imagem com TensorFlow.js</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
+            font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
-            width: 100vw;
             margin: 0;
-            overflow: hidden;
-            background-color: black;
         }
 
-        #videoPlayer, #camera {
+        #videoPlayer {
             display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            object-fit: cover; /* Mantém a proporção de 9:16, como no Instagram Stories */
+            max-width: 600px;
         }
 
-        #videoPlayer.active, #camera.active {
-            display: block;
+        #camera {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #scanMessage {
+            font-size: 18px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
+    <h1>Escaneie uma Imagem para Reproduzir um Vídeo</h1>
+
     <!-- Elemento de vídeo para captura da câmera -->
-    <video id="camera" autoplay class="active"></video>
+    <video id="camera" autoplay></video>
 
     <!-- Elemento de vídeo para reprodução dos vídeos -->
     <video id="videoPlayer" controls></video>
+
+    <p id="scanMessage">Aponte a câmera para uma imagem para começar</p>
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
@@ -51,6 +50,7 @@
         // Variáveis de controle
         const videoElement = document.getElementById('camera');
         const videoPlayer = document.getElementById('videoPlayer');
+        const scanMessage = document.getElementById('scanMessage');
 
         // Links de vídeos hospedados no GitHub
         const videoLinks = {
@@ -80,6 +80,7 @@
         // Carrega o modelo MobileNet
         mobilenet.load().then((loadedModel) => {
             model = loadedModel;
+            scanMessage.textContent = "Modelo carregado. Aponte a câmera para uma imagem.";
             processFrame();
         });
 
@@ -98,6 +99,7 @@
             model.classify(imageTensor).then(predictions => {
                 if (predictions && predictions.length > 0) {
                     const predictedClass = predictions[0].className.split(',')[0].toLowerCase();
+                    scanMessage.textContent = `Reconhecido: ${predictedClass}`;
                     
                     // Verifica se a classe identificada corresponde a algum vídeo na lista
                     if (videoLinks[predictedClass]) {
@@ -114,8 +116,9 @@
 
         function playVideo(link) {
             // Pausa a câmera e oculta
-            videoElement.classList.remove('active');
-            videoPlayer.classList.add('active');
+            videoElement.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            scanMessage.textContent = "Reproduzindo vídeo...";
 
             // Carrega e reproduz o vídeo
             videoPlayer.src = link;
@@ -123,8 +126,9 @@
 
             // Volta ao início quando o vídeo acabar
             videoPlayer.onended = () => {
-                videoPlayer.classList.remove('active');
-                videoElement.classList.add('active');
+                videoPlayer.style.display = 'none';
+                videoElement.style.display = 'block';
+                scanMessage.textContent = "Aponte a câmera para uma imagem para começar";
                 isProcessing = false; // Retoma a detecção de imagens após o vídeo
                 videoElement.play();
 
