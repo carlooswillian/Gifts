@@ -6,13 +6,13 @@
     <title>Reconhecimento de Imagem com TensorFlow.js</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
+            background-color: black;
         }
 
         #videoPlayer {
@@ -28,13 +28,13 @@
 
         #scanMessage {
             font-size: 18px;
+            color: white;
             margin-top: 20px;
+            display: none;
         }
     </style>
 </head>
 <body>
-
-    <h1>Escaneie uma Imagem para Reproduzir um Vídeo</h1>
 
     <!-- Elemento de vídeo para captura da câmera -->
     <video id="camera" autoplay></video>
@@ -57,15 +57,15 @@
             'barbershop': 'Video01.mp4',
             'shield': 'Video02.mp4',
             'seat_belt': 'Video03.mp4',
-            'vulture': 'Video04.mp4',
-            'diaper': 'Video05.mp4',
-            'fig': 'Video06.mp4',
-            'binoculars': 'Video07.mp4',
-            'lakeside': 'Video08.mp4',
-            'conch': 'Video09.mp4',
-            'stingray': 'Video010.mp4',
-            'sturgeon': 'Video11.mp4',
-            'wreck': 'Video12.mp4'
+            'black_grouse': 'Video04.mp4',
+            'potters_wheel': 'Video05.mp4',
+            'robin': 'Video06.mp4',
+            'frilled_lizard': 'Video07.mp4',
+            'car_mirror': 'Video08.mp4',
+            'sea_slug': 'Video09.mp4',
+            'electric_ray': 'Video10.mp4',
+            'shower_cap': 'Video11.mp4',
+            'crane': 'Video12.mp4'
         };
 
         let model;
@@ -80,7 +80,6 @@
         // Carrega o modelo MobileNet
         mobilenet.load().then((loadedModel) => {
             model = loadedModel;
-            scanMessage.textContent = "Modelo carregado. Aponte a câmera para uma imagem.";
             processFrame();
         });
 
@@ -98,9 +97,8 @@
             const imageTensor = tf.browser.fromPixels(canvas);
             model.classify(imageTensor).then(predictions => {
                 if (predictions && predictions.length > 0) {
-                    const predictedClass = predictions[0].className.split(',')[0].toLowerCase();
-                    scanMessage.textContent = `Reconhecido: ${predictedClass}`;
-
+                    let predictedClass = predictions[0].className.toLowerCase();
+                    
                     // Substitui espaços por sublinhados para corresponder ao formato das chaves no videoLinks
                     predictedClass = predictedClass.replace(/\s+/g, '_');
                     
@@ -121,7 +119,6 @@
             // Pausa a câmera e oculta
             videoElement.style.display = 'none';
             videoPlayer.style.display = 'block';
-            scanMessage.textContent = "Reproduzindo vídeo...";
 
             // Carrega e reproduz o vídeo
             videoPlayer.src = link;
@@ -131,12 +128,8 @@
             videoPlayer.onended = () => {
                 videoPlayer.style.display = 'none';
                 videoElement.style.display = 'block';
-                scanMessage.textContent = "Aponte a câmera para uma imagem para começar";
                 isProcessing = false; // Retoma a detecção de imagens após o vídeo
                 videoElement.play();
-
-                // Chama o processFrame novamente para reiniciar a detecção
-                processFrame();
             };
         }
     </script>
