@@ -102,7 +102,7 @@
                     scanMessage.textContent = `Reconhecido: ${predictedClass}`;
 
                     // Substitui espaços por sublinhados para corresponder ao formato das chaves no videoLinks
-        predictedClass = predictedClass.replace(/\s+/g, '_');
+                    predictedClass = predictedClass.replace(/\s+/g, '_');
                     
                     // Verifica se a classe identificada corresponde a algum vídeo na lista
                     if (videoLinks[predictedClass]) {
